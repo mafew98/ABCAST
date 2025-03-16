@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MessageBroadcaster implements Runnable {
     private VectorClock vectorClock;
@@ -32,15 +34,19 @@ public class MessageBroadcaster implements Runnable {
     @Override
     public void run() {
         try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             for (int i = 0; i < MAX_MESSAGES; i++) {
                 synchronized (vectorClock) {
                     vectorClock.increment(nodeId);
                 }
                 String messageContent = "Message no." + (i + 1) + " from " + nodeId;
                 String rawMessageString = Message.createRawMessage(messageContent, vectorClock);
-                System.out.println("Broadcasting: " + rawMessageString);
+                String timestamp = sdf.format(new Date());
+                System.out.println(String.format("[%s]Broadcasting: " + rawMessageString, timestamp));
                 for (Map.Entry<Integer, PrintWriter> entry : outputStreams.entrySet()) {
                     try {
+                        timestamp = sdf.format(new Date());
+                        System.out.println(String.format("[%s]Broadcasting Message to [%d]", timestamp, entry.getKey()));
                         entry.getValue().println(rawMessageString); // Using the printwriter object to write to the
                                                                     // outputstream
                     } catch (Exception e) {
@@ -52,7 +58,11 @@ public class MessageBroadcaster implements Runnable {
             }
             // Flush all the outputstreams
             for (Map.Entry<Integer, PrintWriter> entry : outputStreams.entrySet()) {
+                String timestamp = sdf.format(new Date());
+                System.out.println(String.format("[%s]Flushing comm channel to [%d]", timestamp, entry.getKey()));
                 entry.getValue().flush();
+                timestamp = sdf.format(new Date());
+                System.out.println(String.format("[%s]Shutting Down output to [%d]", timestamp, entry.getKey()));
                 this.connectionHash.get(entry.getKey()).shutdownOutput(); // Shutdown only the output to the socket.
                                                                           // Retain the read.
             }

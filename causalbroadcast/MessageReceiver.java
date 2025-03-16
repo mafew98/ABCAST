@@ -2,7 +2,11 @@ package causalbroadcast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Random;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MessageReceiver extends Thread {
     private BufferedReader reader;
@@ -35,9 +39,12 @@ public class MessageReceiver extends Thread {
     @Override
     public void run() {
         try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             String rawMessageContent;
             while (messageCount < MAX_MESSAGES && (rawMessageContent = reader.readLine()) != null) {
                 Message messageReceived = new Message(rawMessageContent, nodeId);
+                String timestamp = sdf.format(new Date());
+                System.out.println(String.format("[%s]Message received: {%s}", timestamp, rawMessageContent));
                 messageCount += 1;
                 Thread.sleep(random.nextInt(5));
                 messageBroker.addMessageToQueue(messageReceived);
