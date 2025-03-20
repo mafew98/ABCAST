@@ -23,7 +23,7 @@ public class MessageBroker {
         this.connectionHash = connectionContext.getConnectionHash();
         this.connectionContext = connectionContext;
         this.vectorClock = new VectorClock(MAX_PROCESSES); // initializing the vector clock for this node
-        // create a minimum 50 message wide queue to handle deferred delivery
+        // create a minimum 100 message wide queue to handle deferred delivery
         this.messageQueue = new PriorityBlockingQueue<>(100, new MessageComparator());
     }
 

@@ -53,7 +53,8 @@ public class MessageBroadcaster implements Runnable {
                         System.err.println("Failed to send message to process " + entry.getKey());
                     }
                 }
-
+                Thread.sleep(10);
+                // Random wait to introduce message differences
                 Thread.sleep(random.nextInt(10));
             }
             // Flush all the outputstreams
@@ -69,7 +70,8 @@ public class MessageBroadcaster implements Runnable {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // Properly handle thread interruptions
             e.printStackTrace();
-        } catch (IOException e) {
+        }
+         catch (IOException e) {
             e.printStackTrace();
         }
     }

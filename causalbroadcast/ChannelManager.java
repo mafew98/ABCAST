@@ -86,6 +86,7 @@ public class ChannelManager {
         while (!connected && attempts < MAX_RETRIES) {
             try {
                 Socket outSocket = new Socket(nodeAddress, connectionContext.getPort());
+                outSocket.setKeepAlive(true);
                 connectionHash.put(systemMapping.get(nodeAddress), outSocket);
                 System.out.println("Connected to Node " + systemMapping.get(nodeAddress));
                 connected = true;
@@ -116,6 +117,7 @@ public class ChannelManager {
     private void acceptConnectionsFromLowerIdNodes() throws IOException, NumberFormatException {
         while (connectionHash.size() < TOTAL_MACHINES - 1) {
             Socket inSocket = serverSocket.accept();
+            inSocket.setKeepAlive(true);
             InetAddress remoteSocketIP = inSocket.getInetAddress();
             try {
                 int requestorNodeId = systemMapping.get(remoteSocketIP);
@@ -152,7 +154,7 @@ public class ChannelManager {
      */
     private void waitForReadySignals() throws IOException {
         for (Map.Entry<Integer, Socket> entry : connectionHash.entrySet()) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(entry.getValue().getInputStream()), 16384);  // 16KB Buffer
+            BufferedReader in = new BufferedReader(new InputStreamReader(entry.getValue().getInputStream()), 65536);  // 64KB Buffer
             while (!in.readLine().equals("READY")) {}
             connectionContext.addInputReader(entry.getKey(), in);
             System.out.println("Received READY");

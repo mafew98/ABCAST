@@ -23,7 +23,7 @@ public class ConnectionContext {
     private HashMap<Integer, BufferedReader> inputReaderHash = new HashMap<>();
     private HashMap<Integer, PrintWriter> outputWriterHash = new HashMap<>();
     private ServerSocket serverSocket;
-    private static int port = 4942; // Communication port for the whole system
+    private static int port = 24942; // Communication port for the whole system
 
     /**
      * Returns the communication port number
@@ -126,7 +126,7 @@ public class ConnectionContext {
 
     /**
      * Creates the socket server for the communication.
-     * Specifies an OS buffer size of 5 messages so as to not lose connection
+     * Specifies an OS buffer size of 10 connections so as to not lose connection
      * messages if they are received before we listen on the socket.
      * 
      * @return
@@ -147,8 +147,22 @@ public class ConnectionContext {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         for (Map.Entry<Integer, Socket> entry : connectionHash.entrySet()) {
             String timestamp = sdf.format(new Date());
-            System.out.println(String.format("[%s]Closing channel to/from [%d]", timestamp, entry.getKey()));
+            System.out.println(String.format("[%s]Closing Block. Checking channel for [%d]", timestamp, entry.getKey()));
             entry.getValue().close();
+            //debug
+            Socket socket = entry.getValue();
+
+            if (socket.isInputShutdown()) {
+                System.out.println("Input stream is closed");
+            }
+            
+            if (socket.isOutputShutdown()) {
+                System.out.println("Output stream is closed");
+            }
+
+            if (socket.isClosed()){
+                System.out.println("The socket is closed.");
+            }
         }
         // Shutting down the server
         serverSocket.close();
