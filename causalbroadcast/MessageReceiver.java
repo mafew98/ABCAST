@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.Random;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class MessageReceiver extends Thread {
     private BufferedReader reader;
@@ -51,13 +50,6 @@ public class MessageReceiver extends Thread {
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                connectionContext.getConnectionHash().get(nodeId).shutdownInput(); // Stopping all input only to the
-                                                                                   // socket.
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        } 
     }
 }

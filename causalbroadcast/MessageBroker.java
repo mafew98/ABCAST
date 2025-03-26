@@ -1,6 +1,8 @@
 package causalbroadcast;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -121,7 +123,39 @@ public class MessageBroker {
             processMessages();
         }
 
+        if (DELIVERY_COUNT == 300) {
+            //Send done to all active processes
+            sendCompletionNotification();
+            //threaded receiver with timeout
+            waitForCompletionAcknowledgement();   
+        }
+
         System.out.println("Total Number of Messages Received: " + DELIVERY_COUNT);
+    }
+
+    /**
+     * Method to send completion notification to all connected nodes.
+     * 
+     */
+    private void sendCompletionNotification() {
+        for (Map.Entry<Integer, PrintWriter> entry: connectionContext.getOutputWriterHash().entrySet()) {
+            entry.getValue().println("COMPLETE");
+        }
+    }
+
+    /**
+     * Wait Method that waits for the completion acknowledgement
+     * 
+     */
+    private void waitForCompletionAcknowledgement() {
+        try {
+            for (Map.Entry<Integer, BufferedReader> entry: connectionContext.getInputReaderHash().entrySet()) {
+                while (!entry.getValue().readLine().equals("COMPLETE")) {}
+                System.out.println("Received Complete from " + entry.getKey());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

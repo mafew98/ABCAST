@@ -62,16 +62,9 @@ public class MessageBroadcaster implements Runnable {
                 String timestamp = sdf.format(new Date());
                 System.out.println(String.format("[%s]Flushing comm channel to [%d]", timestamp, entry.getKey()));
                 entry.getValue().flush();
-                timestamp = sdf.format(new Date());
-                System.out.println(String.format("[%s]Shutting Down output to [%d]", timestamp, entry.getKey()));
-                this.connectionHash.get(entry.getKey()).shutdownOutput(); // Shutdown only the output to the socket.
-                                                                          // Retain the read.
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // Properly handle thread interruptions
-            e.printStackTrace();
-        }
-         catch (IOException e) {
             e.printStackTrace();
         }
     }

@@ -8,9 +8,6 @@ import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-//debug
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Class to contain all information about the connections being made in the system.
@@ -144,25 +141,8 @@ public class ConnectionContext {
      * @throws IOException
      */
     public void closeChannels() throws IOException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         for (Map.Entry<Integer, Socket> entry : connectionHash.entrySet()) {
-            String timestamp = sdf.format(new Date());
-            System.out.println(String.format("[%s]Closing Block. Checking channel for [%d]", timestamp, entry.getKey()));
             entry.getValue().close();
-            //debug
-            Socket socket = entry.getValue();
-
-            if (socket.isInputShutdown()) {
-                System.out.println("Input stream is closed");
-            }
-            
-            if (socket.isOutputShutdown()) {
-                System.out.println("Output stream is closed");
-            }
-
-            if (socket.isClosed()){
-                System.out.println("The socket is closed.");
-            }
         }
         // Shutting down the server
         serverSocket.close();
