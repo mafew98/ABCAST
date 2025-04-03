@@ -2,10 +2,9 @@ package totalbroadcast;
 
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-import javax.xml.soap.Node;
-
 public class VectorClock {
     private AtomicIntegerArray vectorClock;
+
     /**
      * Constructor to create a new vector clock.
      * 
@@ -101,8 +100,10 @@ public class VectorClock {
                 greater = true;
             }
         }
-        if (less && !greater) return -1;
-        if (!less && greater) return 1;
+        if (less && !greater)
+            return -1;
+        if (!less && greater)
+            return 1;
         return 0;
     }
 
@@ -118,8 +119,9 @@ public class VectorClock {
     public synchronized boolean canDeliver(VectorClock receivedClock, int NodeId, int currentNodeId) {
         // Condition 1: C[b] = M[b] - 1 (b is receiver's process ID)
         if ((currentNodeId == NodeId) && (this.getComponent(NodeId - 1) != receivedClock.getComponent(NodeId - 1))) {
-            return false;    
-        } else if ((currentNodeId != NodeId) && this.getComponent(NodeId - 1) != receivedClock.getComponent(NodeId - 1) - 1) {
+            return false;
+        } else if ((currentNodeId != NodeId)
+                && this.getComponent(NodeId - 1) != receivedClock.getComponent(NodeId - 1) - 1) {
             return false;
         }
         // Condition 2: C[k] >= M[k] for all other components

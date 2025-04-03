@@ -9,7 +9,7 @@ public class MessageComparator implements Comparator<Message> {
      * 
      * @param m1
      * @param m2
-     * @return int (-1, 0, 1) 
+     * @return int (-1, 0, 1)
      */
     @Override
     public int compare(Message m1, Message m2) {

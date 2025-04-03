@@ -32,7 +32,7 @@ public class Message {
         this.messageContent = messageParts[1];
         int index = messageContent.indexOf("from Node ");
         if (index != -1) {
-            this.NodeId = Integer.parseInt(messageContent.substring(index + 10).trim());  // Extract Z
+            this.NodeId = Integer.parseInt(messageContent.substring(index + 10).trim()); // Extract Z
         }
     }
 

@@ -1,16 +1,16 @@
 package totalbroadcast;
 
 public class Sequencer implements Runnable {
-    public boolean isSequencer = false;     // Sequencer Token
+    public boolean isSequencer = false; // Sequencer Token
     public int sequenceNo;
     private ConnectionContext connectionContext;
     private MessageQueue messageQueue;
     private SequencerQueue sequencerQueue;
     private VectorClock vectorClock;
-    private int DELIVERY_COUNT=0;
+    private int DELIVERY_COUNT = 0;
     private final int TOTAL_MESSAGES = 500;
 
-    public Sequencer(boolean isSequencer,  ConnectionContext connectionContext) {
+    public Sequencer(boolean isSequencer, ConnectionContext connectionContext) {
         // First time initialization
         this.sequenceNo = 0;
         if (isSequencer) {
@@ -27,7 +27,7 @@ public class Sequencer implements Runnable {
      */
     @Override
     public void run() {
-        while (DELIVERY_COUNT < TOTAL_MESSAGES) {                //HARD CODED. CHANGE LATER.
+        while (DELIVERY_COUNT < TOTAL_MESSAGES) {
             if (isSequencer) {
                 processAppMessages();
             } else {
@@ -37,19 +37,27 @@ public class Sequencer implements Runnable {
         System.out.println("Total Number of Messages Received: " + DELIVERY_COUNT);
     }
 
-    // Only need to check the top since these are already set according to priority.
-    // if top isnt deliverable, the ones after are also not deliverable.
+    /**
+     * Method to process all application messages to sequence them.
+     * Only need to check the top since these are already set according to priority.
+     * If top isnt deliverable, the ones after are also not deliverable.
+     */
     private void processAppMessages() {
         while (messageQueue.peekMessageQueue() != null && isDeliverable(messageQueue.peekMessageQueue())) {
             Message topMessage = messageQueue.pollMessageQueue();
-            //deliver the message
+            // deliver the message
             deliverMessage(topMessage);
-            //sequence the message and put in Broadcast Queue
+            // sequence the message and put in Broadcast Queue
             sequenceNo += 1;
-            connectionContext.addToSequencedBroadcastQueue(SequencedMessage.createSequencedRawMessage(topMessage, sequenceNo));;
+            connectionContext
+                    .addToSequencedBroadcastQueue(SequencedMessage.createSequencedRawMessage(topMessage, sequenceNo));
+            ;
         }
     }
 
+    /**
+     * Method to process and sequence received sequenced messages
+     */
     private void processSequenceMessages() {
         if (!sequencerQueue.isEmpty()) {
             while (!sequencerQueue.isEmpty()) {

@@ -13,8 +13,8 @@ public class MessageBroadcaster implements Runnable {
     private ConnectionContext connectionContext;
     private HashMap<Integer, PrintWriter> outputStreams; // Hash between nodeID and the output socket stream
     private final int currentNodeId;
-    private final int MAX_NEW_MESSAGES = 100; // Sets the maximum messages expected.    //CHANGEDDDD
-    private final int MAX_SEQUENCED_MESSAGES = 500;           //CHANGED
+    private final int MAX_NEW_MESSAGES = 100; // Sets the maximum messages expected.
+    private final int MAX_SEQUENCED_MESSAGES = 500;
     private int sentSequencedMessageCount = 0;
     private int broadcastCount = 0;
     private final Random random = new Random();
@@ -43,14 +43,19 @@ public class MessageBroadcaster implements Runnable {
             } else {
                 attemptNonSequenceMessageBroadcast();
             }
-            
+
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // Properly handle thread interruptions
             e.printStackTrace();
         }
     }
 
-    private void attemptAllMessageBroadcast() throws InterruptedException{
+    /**
+     * Method to attempt both sequencer and application message broadcast.
+     * 
+     * @throws InterruptedException
+     */
+    private void attemptAllMessageBroadcast() throws InterruptedException {
         while (sentSequencedMessageCount < MAX_SEQUENCED_MESSAGES) {
             // looking for sequenced messages
             broadcastSequencerMessages();
@@ -63,33 +68,49 @@ public class MessageBroadcaster implements Runnable {
         }
     }
 
-    private void attemptNonSequenceMessageBroadcast() throws InterruptedException{
+    /**
+     * Attempt only non sequencer message broadcast
+     * 
+     * @throws InterruptedException
+     */
+    private void attemptNonSequenceMessageBroadcast() throws InterruptedException {
         while (broadcastCount < MAX_NEW_MESSAGES) {
             broadcastAppMessages();
         }
     }
 
+    /**
+     * Method to broadcast sequencer messages from a sequencer node.
+     */
     private void broadcastSequencerMessages() {
         while (connectionContext.peekSequencedBroadcastQueue() != null) {
             String timestamp = sdf.format(new Date());
             String rawMessageString = connectionContext.pollSequencedBroadcastQueue();
-            for (int processId=1; processId<=connectionContext.getMaxProcesses(); processId++) {
+            for (int processId = 1; processId <= connectionContext.getMaxProcesses(); processId++) {
                 // Since sequencer only needs to broadcast to others.
                 if (processId != currentNodeId) {
                     try {
                         timestamp = sdf.format(new Date());
-                        System.out.println(String.format("[%s]Broadcasting Sequencer Message to [%d]", timestamp, processId));
-                        outputStreams.get(processId).println(rawMessageString); // Using the printwriter object to write to the
-                                                                    // outputstream
+                        System.out.println(
+                                String.format("[%s]Broadcasting Sequencer Message to [%d]", timestamp, processId));
+                        outputStreams.get(processId).println(rawMessageString); // Using the printwriter object to write
+                                                                                // to the
+                        // outputstream
                     } catch (Exception e) {
                         System.err.println("Failed to send message to process " + processId);
                     }
-                }                 
+                }
             }
             sentSequencedMessageCount++;
         }
     }
 
+    /**
+     * Method to broadcast only the application messages. Used when broadcaster is
+     * running on a non-sequencer node.
+     * 
+     * @throws InterruptedException
+     */
     private void broadcastAppMessages() throws InterruptedException {
         if (broadcastCount < MAX_NEW_MESSAGES) {
             synchronized (vectorClock) {
@@ -99,13 +120,14 @@ public class MessageBroadcaster implements Runnable {
             String rawMessageString = Message.createRawMessage(messageContent, vectorClock);
             String timestamp = sdf.format(new Date());
             System.out.println(String.format("[%s]Broadcasting: " + rawMessageString, timestamp));
-            for (int processId=1; processId<=connectionContext.getMaxProcesses(); processId++) {
+            for (int processId = 1; processId <= connectionContext.getMaxProcesses(); processId++) {
                 if (processId != currentNodeId) {
                     try {
                         timestamp = sdf.format(new Date());
                         System.out.println(String.format("[%s]Broadcasting Message to [%d]", timestamp, processId));
-                        outputStreams.get(processId).println(rawMessageString); // Using the printwriter object to write to the
-                                                                    // outputstream
+                        outputStreams.get(processId).println(rawMessageString); // Using the printwriter object to write
+                                                                                // to the
+                        // outputstream
                     } catch (Exception e) {
                         System.err.println("Failed to send message to process " + processId);
                     }
@@ -121,6 +143,10 @@ public class MessageBroadcaster implements Runnable {
         }
     }
 
+    /**
+     * Utility Method to flush all channels. Not generally required since using
+     * Printwriter autoflush.
+     */
     private void flushOutputChannels() {
         for (Map.Entry<Integer, PrintWriter> entry : outputStreams.entrySet()) {
             String timestamp = sdf.format(new Date());
@@ -129,6 +155,12 @@ public class MessageBroadcaster implements Runnable {
         }
     }
 
+    /**
+     * Broadcasts a message to oneself. Does this but just directly placing the
+     * message in the message priority queue, skipping the receiver.
+     * 
+     * @param rawMessageString
+     */
     private void broadcastToSelf(String rawMessageString) {
         connectionContext.getMessageQueue().addMessageToQueue(new Message(rawMessageString, currentNodeId));
     }

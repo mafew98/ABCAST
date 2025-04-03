@@ -27,9 +27,13 @@ public class MessageBroker {
         this.connectionContext = connectionContext;
     }
 
+    /**
+     * Method to initialize all datastructures required to start communication
+     * phase.
+     */
     public void initialization() {
         // Initialize vector clock for the node
-        connectionContext.setVectorClock(new VectorClock(MAX_PROCESSES)); 
+        connectionContext.setVectorClock(new VectorClock(MAX_PROCESSES));
 
         // Initialize Message Queue
         connectionContext.setMessageQueue(new MessageQueue(MAX_PROCESSES * MAX_PROCESSES_MESSAGES));
@@ -49,10 +53,15 @@ public class MessageBroker {
         }
     }
 
+    /**
+     * Starts the sequencer of a separate thread. Sequencer handles sequencing and
+     * message delivery.
+     */
     public void startSequencer() {
         sequencerThread = new Thread(new Sequencer(isSequencerNode, connectionContext));
         sequencerThread.start();
     }
+
     /**
      * Starts receiver threads that handle all messages from one node (tied to one
      * socket)
@@ -92,10 +101,10 @@ public class MessageBroker {
             sequencerThread.join();
         }
 
-        //Send done to all active processes
+        // Send done to all active processes
         sendCompletionNotification();
-        //threaded receiver with timeout
-        waitForCompletionAcknowledgement();   
+        // threaded receiver with timeout
+        waitForCompletionAcknowledgement();
     }
 
     /**
@@ -103,7 +112,7 @@ public class MessageBroker {
      * 
      */
     private void sendCompletionNotification() {
-        for (Map.Entry<Integer, PrintWriter> entry: connectionContext.getOutputWriterHash().entrySet()) {
+        for (Map.Entry<Integer, PrintWriter> entry : connectionContext.getOutputWriterHash().entrySet()) {
             entry.getValue().println("COMPLETE");
         }
     }
@@ -114,8 +123,9 @@ public class MessageBroker {
      */
     private void waitForCompletionAcknowledgement() {
         try {
-            for (Map.Entry<Integer, BufferedReader> entry: connectionContext.getInputReaderHash().entrySet()) {
-                while (!entry.getValue().readLine().equals("COMPLETE")) {}
+            for (Map.Entry<Integer, BufferedReader> entry : connectionContext.getInputReaderHash().entrySet()) {
+                while (!entry.getValue().readLine().equals("COMPLETE")) {
+                }
                 System.out.println("Received Complete from " + entry.getKey());
             }
         } catch (IOException e) {

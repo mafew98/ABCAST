@@ -40,45 +40,12 @@ public class ChannelManager {
     public void initializeChannels() throws IOException, NumberFormatException {
         // Initiate Connection Channels
         startServer();
-        
+
         connectToHigherIdNodes();
         acceptConnectionsFromLowerIdNodes();
 
         System.out.println("Node " + NodeId + " has established all connections.");
 
-        // // Run acceptor thread first
-        // Thread acceptorThread = new Thread(new Runnable() {
-        //     @Override
-        //     public void run() {
-        //         try {
-        //             waitForReadySignals();
-        //         } catch (IOException e) {
-        //             e.printStackTrace();
-        //         }
-        //     }
-        // });
-        // acceptorThread.start();
-
-        // // Run connector thread second
-        // Thread connectorThread = new Thread(new Runnable() {
-        //     @Override
-        //     public void run() {
-        //         try {
-        //             sendReadySignal();
-        //         } catch (IOException e) {
-        //             e.printStackTrace();
-        //         }
-        //     }
-        // });
-        // connectorThread.start();
-
-        // try {
-        //     connectorThread.join();
-        //     acceptorThread.join();   
-        // } catch (InterruptedException e) {
-        //     e.printStackTrace();
-        // }
-        
         // Signal readiness
         sendReadySignal();
         waitForReadySignals();
@@ -191,8 +158,10 @@ public class ChannelManager {
      */
     private void waitForReadySignals() throws IOException {
         for (Map.Entry<Integer, Socket> entry : connectionHash.entrySet()) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(entry.getValue().getInputStream()), 65536);  // 64KB Buffer
-            while (!in.readLine().equals("READY")) {}
+            BufferedReader in = new BufferedReader(new InputStreamReader(entry.getValue().getInputStream()), 65536); // 64KB
+                                                                                                                     // Buffer
+            while (!in.readLine().equals("READY")) {
+            }
             connectionContext.addInputReader(entry.getKey(), in);
             System.out.println("Received READY");
         }

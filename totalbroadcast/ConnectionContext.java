@@ -24,6 +24,10 @@ public class ConnectionContext {
     private static int port = 24942; // Communication port for the whole system
     private int MAX_PROCESSES = 5;
 
+    
+    /** 
+     * @return int
+     */
     public int getMaxProcesses() {
         return MAX_PROCESSES;
     }
@@ -199,10 +203,18 @@ public class ConnectionContext {
 
     private VectorClock vectorClock;
 
+    /**
+     * Vector Clock getter
+     * @return
+     */
     public VectorClock getVectorClock() {
         return vectorClock;
     }
 
+    /**
+     * Vector Clock setter
+     * @param vectorClock
+     */
     public void setVectorClock(VectorClock vectorClock) {
         this.vectorClock = vectorClock;
     }
@@ -229,7 +241,8 @@ public class ConnectionContext {
     private int sequencerID;
     private ConcurrentLinkedQueue<String> sequencedBroadcastQueue = new ConcurrentLinkedQueue<>();  // Using raw Sequenced Messages here
     private SequencerQueue sequencerQueue;
-     /**
+    
+    /**
      * Sets the ID for the current Sequencer process
      * @param sequencerID
      */
@@ -245,22 +258,43 @@ public class ConnectionContext {
         return this.sequencerID;
     }
 
+    /**
+     * Method to add sequenced messages to the broadcast queue.
+     * Marks sequenced messages as "to be broadcast"
+     * @param rawSequencedMessage
+     */
     public void addToSequencedBroadcastQueue(String rawSequencedMessage) {
         this.sequencedBroadcastQueue.add(rawSequencedMessage);
     }
 
+    /**
+     * Method to peek at the Sequenced Broadcast Queue
+     * @return
+     */
     public String peekSequencedBroadcastQueue() {
         return this.sequencedBroadcastQueue.peek();
     }
 
+    /**
+     * Polls the Sequenced Broadcast Queue
+     * @return
+     */
     public String pollSequencedBroadcastQueue() {
         return this.sequencedBroadcastQueue.poll();
     }
 
+    /**
+     * Stores the sequencer queue object
+     * @param sequencerQueue
+     */
     public void setSequencerQueue(SequencerQueue sequencerQueue) {
         this.sequencerQueue = sequencerQueue;
     }
 
+    /**
+     * Gets the sequencer queue object
+     * @return
+     */
     public SequencerQueue getSequencerQueue() {
         return this.sequencerQueue;
     }

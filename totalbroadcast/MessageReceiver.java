@@ -13,7 +13,8 @@ public class MessageReceiver extends Thread {
     private int messageCount = 0;
     private int sequencedMessageCount = 0;
     private static final int TOTAL_FOREIGN_MESSAGES = 100;
-    private static final int TOTAL_SEQUENCE_MESSAGES =  500;  // Sets the maximum messages expected from outside. Internal broadcasts go directly to the queues
+    private static final int TOTAL_SEQUENCE_MESSAGES = 500; // Sets the maximum messages expected from outside. Internal
+                                                            // broadcasts go directly to the queues
     private MessageQueue messageQueue;
     private ConnectionContext connectionContext;
 
@@ -41,7 +42,8 @@ public class MessageReceiver extends Thread {
     public void run() {
         try {
             if (connectionContext.getSequencerID() == nodeId) {
-                // We dont need to explicitly check for receiver count sent to the Sequencer since it is internal and we dont have a channel.
+                // We dont need to explicitly check for receiver count sent to the Sequencer
+                // since it is internal and we dont have a channel.
                 processAllMessages();
             } else {
                 processNonSequenceMessages();
@@ -51,11 +53,16 @@ public class MessageReceiver extends Thread {
         }
     }
 
+    /**
+     * Method to process all messages if on a sequencer node
+     * 
+     * @throws IOException
+     */
     private void processAllMessages() throws IOException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String rawMessageContent;
         while (sequencedMessageCount < TOTAL_SEQUENCE_MESSAGES && (rawMessageContent = reader.readLine()) != null) {
-            //debug
+            // debug
             String timestamp = sdf.format(new Date());
             System.out.println(String.format("[%s]Message received: {%s}", timestamp, rawMessageContent));
             if (SequencedMessage.isSequencedMessage(rawMessageContent)) {
@@ -68,6 +75,11 @@ public class MessageReceiver extends Thread {
         }
     }
 
+    /**
+     * Method to process only non-sequencer messages on a non-sequencer node.
+     * 
+     * @throws IOException
+     */
     private void processNonSequenceMessages() throws IOException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String rawMessageContent;
@@ -79,6 +91,11 @@ public class MessageReceiver extends Thread {
         }
     }
 
+    /**
+     * Method to process application messages
+     * 
+     * @param rawMessageContent
+     */
     public void processAppMessages(String rawMessageContent) {
         Message messageReceived = new Message(rawMessageContent, nodeId);
         messageQueue.addMessageToQueue(messageReceived);

@@ -7,7 +7,7 @@ public class MessageVerifier {
     static boolean correctDeferral = true;
 
     static Scanner scanner = new Scanner(System.in);
-    
+
     public static void main(String[] args) {
         System.out.print("Enter filePath: ");
         String filePath = scanner.nextLine();
@@ -34,11 +34,12 @@ public class MessageVerifier {
     }
 
     private static void processDelivered(String line) {
-        // System.out.println("Processing delivered message: " + line);  // Debugging
+        // System.out.println("Processing delivered message: " + line); // Debugging
         // Extract the message number and node ID
         try {
             String[] parts = line.split("Message no\\.");
-            if (parts.length < 2) return;  // Ignore malformed lines
+            if (parts.length < 2)
+                return; // Ignore malformed lines
 
             String[] messageParts = parts[1].trim().split(" from ");
             int messageNumber = Integer.parseInt(messageParts[0].trim());
@@ -48,7 +49,7 @@ public class MessageVerifier {
             lastDelivered.putIfAbsent(nodeId, 0);
             if (messageNumber <= lastDelivered.get(nodeId)) {
                 System.err.println("Error: Out-of-order delivery detected! Node " + nodeId +
-                                   " delivered " + messageNumber + " after " + lastDelivered.get(nodeId));
+                        " delivered " + messageNumber + " after " + lastDelivered.get(nodeId));
                 correctOrder = false;
             }
 
@@ -62,12 +63,13 @@ public class MessageVerifier {
     }
 
     private static void processDeferred(String line) {
-        // System.out.println("Processing deferred message: " + line);  // Debugging
+        // System.out.println("Processing deferred message: " + line); // Debugging
 
         try {
             // Extract vector clocks and node ID
             String[] parts = line.split(":Message no\\.");
-            if (parts.length < 2) return;
+            if (parts.length < 2)
+                return;
 
             String[] clockParts = parts[0].replace("Unable to deliver ", "").split(":");
             String[] systemClockParts = parts[1].split("Current Clock: ");
@@ -93,8 +95,8 @@ public class MessageVerifier {
 
     private static int[] parseVectorClock(String vectorClockStr) {
         return Arrays.stream(vectorClockStr.trim().split(","))
-                     .mapToInt(Integer::parseInt)
-                     .toArray();
+                .mapToInt(Integer::parseInt)
+                .toArray();
     }
 
     private static boolean isValidDeferred(int[] msgClock, int[] sysClock, int nodeId) {
@@ -106,7 +108,7 @@ public class MessageVerifier {
                     return true;
                 }
             }
-        } else if (msgClock[nodeIndex] > sysClock[nodeIndex] + 1){
+        } else if (msgClock[nodeIndex] > sysClock[nodeIndex] + 1) {
             return true;
         }
         return false;
