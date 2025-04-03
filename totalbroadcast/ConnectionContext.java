@@ -1,13 +1,14 @@
-package causalbroadcast;
+package totalbroadcast;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Class to contain all information about the connections being made in the system.
@@ -21,7 +22,11 @@ public class ConnectionContext {
     private HashMap<Integer, PrintWriter> outputWriterHash = new HashMap<>();
     private ServerSocket serverSocket;
     private static int port = 24942; // Communication port for the whole system
+    private int MAX_PROCESSES = 5;
 
+    public int getMaxProcesses() {
+        return MAX_PROCESSES;
+    }
     /**
      * Returns the communication port number
      * 
@@ -37,7 +42,7 @@ public class ConnectionContext {
      * @return
      */
     public int getNodeId() {
-        return nodeId;
+        return nodeId;      // this is already set by getcurrentnodeid()
     }
 
     /**
@@ -187,4 +192,77 @@ public class ConnectionContext {
         }
         return null;
     }
+
+    /**
+     * VECTOR CLOCK
+     */
+
+    private VectorClock vectorClock;
+
+    public VectorClock getVectorClock() {
+        return vectorClock;
+    }
+
+    public void setVectorClock(VectorClock vectorClock) {
+        this.vectorClock = vectorClock;
+    }
+    
+
+    /*
+     * MESSAGE QUEUE
+     */
+
+    private MessageQueue messageQueue; // Shared message queue
+
+    public MessageQueue getMessageQueue() {
+        return this.messageQueue;
+    }
+
+    public void setMessageQueue(MessageQueue messageQueue) {
+        this.messageQueue = messageQueue;
+    }
+
+    /**
+    * SEQUENCER ATTRIBUTES
+    */
+
+    private int sequencerID;
+    private ConcurrentLinkedQueue<String> sequencedBroadcastQueue = new ConcurrentLinkedQueue<>();  // Using raw Sequenced Messages here
+    private SequencerQueue sequencerQueue;
+     /**
+     * Sets the ID for the current Sequencer process
+     * @param sequencerID
+     */
+    public void setSequencerID(int sequencerID) {
+        this.sequencerID = sequencerID;
+    }
+
+    /**
+     * Returns the ID of the current sequencer process
+     * @return
+     */
+    public int getSequencerID() {
+        return this.sequencerID;
+    }
+
+    public void addToSequencedBroadcastQueue(String rawSequencedMessage) {
+        this.sequencedBroadcastQueue.add(rawSequencedMessage);
+    }
+
+    public String peekSequencedBroadcastQueue() {
+        return this.sequencedBroadcastQueue.peek();
+    }
+
+    public String pollSequencedBroadcastQueue() {
+        return this.sequencedBroadcastQueue.poll();
+    }
+
+    public void setSequencerQueue(SequencerQueue sequencerQueue) {
+        this.sequencerQueue = sequencerQueue;
+    }
+
+    public SequencerQueue getSequencerQueue() {
+        return this.sequencerQueue;
+    }
+
 }

@@ -1,4 +1,4 @@
-package causalbroadcast;
+package totalbroadcast;
 
 import java.io.*;
 
@@ -15,6 +15,7 @@ public class comDriver {
         ConnectionContext.readSystemProperties();
         ConnectionContext.getCurrentNodeID();
 
+
         // Creates the communication context and invokes channel setup
         ConnectionContext connectionContext = new ConnectionContext();
         ChannelManager ChannelManager = new ChannelManager(connectionContext);
@@ -22,11 +23,13 @@ public class comDriver {
 
         // Create the message broker class that will begin the broadcast and deliver messages
         MessageBroker messageBroker = new MessageBroker(connectionContext);
+        messageBroker.initialization();
+        messageBroker.startSequencer();
         messageBroker.startReceivers();
         messageBroker.startBroadcaster();
         messageBroker.waitForCompletion();
-
-        // Close all the channels
+        
+        //Close all the channels
         ChannelManager.closeChannels();
     }
 }

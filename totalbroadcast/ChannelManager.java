@@ -1,4 +1,4 @@
-package causalbroadcast;
+package totalbroadcast;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class ChannelManager {
 
-    public static final int TOTAL_MACHINES = 4;
+    public final int TOTAL_MACHINES;
     private int NodeId;
     private ConnectionContext connectionContext;
     private HashMap<InetAddress, Integer> systemMapping;
@@ -23,6 +23,7 @@ public class ChannelManager {
         this.systemMapping = connectionContext.getNodeIPMapping();
         this.connectionHash = connectionContext.getConnectionHash();
         this.connectionContext = connectionContext;
+        this.TOTAL_MACHINES = connectionContext.getMaxProcesses();
     }
 
     /**
@@ -39,9 +40,45 @@ public class ChannelManager {
     public void initializeChannels() throws IOException, NumberFormatException {
         // Initiate Connection Channels
         startServer();
+        
         connectToHigherIdNodes();
         acceptConnectionsFromLowerIdNodes();
+
         System.out.println("Node " + NodeId + " has established all connections.");
+
+        // // Run acceptor thread first
+        // Thread acceptorThread = new Thread(new Runnable() {
+        //     @Override
+        //     public void run() {
+        //         try {
+        //             waitForReadySignals();
+        //         } catch (IOException e) {
+        //             e.printStackTrace();
+        //         }
+        //     }
+        // });
+        // acceptorThread.start();
+
+        // // Run connector thread second
+        // Thread connectorThread = new Thread(new Runnable() {
+        //     @Override
+        //     public void run() {
+        //         try {
+        //             sendReadySignal();
+        //         } catch (IOException e) {
+        //             e.printStackTrace();
+        //         }
+        //     }
+        // });
+        // connectorThread.start();
+
+        // try {
+        //     connectorThread.join();
+        //     acceptorThread.join();   
+        // } catch (InterruptedException e) {
+        //     e.printStackTrace();
+        // }
+        
         // Signal readiness
         sendReadySignal();
         waitForReadySignals();

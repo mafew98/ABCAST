@@ -1,13 +1,13 @@
 Compilation Instructions:
 ------------------------
 
-1. Copy the causalbroadcast package to all the machines to run to communication on and extract the package. This can be done by:
+1. Copy the totalbroadcast package to all the machines to run to communication on and extract the package. This can be done by:
     1.1 Create a tarball of the package using 
-            tar -uvf causalbroadcast.tar causalbroadcast/
+            tar -uvf totalbroadcast.tar totalbroadcast/
     1.2 Copy the tarball using scp to all the nodes:
-            scp -i <ssh-key> causalbroadcast.tar <user>@dc<nodeno>.utdallas.edu:~
+            scp -i <ssh-key> totalbroadcast.tar <user>@dc<nodeno>.utdallas.edu:~
     1.3 Extract the package in the home directory using
-            tar -xvf causalbroadcast.tar
+            tar -xvf totalbroadcast.tar
     * Optional:
         scp can go wrong sometimes. A good practice to unsure that the package has not corrupted is to validate the checksum of the tarball at both the sender and the receiver.
         This can be done using the following:
@@ -17,7 +17,7 @@ Compilation Instructions:
     2.1 Compile the package using
             javac -d . *.java
     2.2 Run the package using
-            java causalbroadcast.comDriver | tee <nodename>.log
+            java totalbroadcast.comDriver | tee <nodename>.log
 
 3. To verify the results, collect the logfile you want to verify and run the message verifier.
     3.1 Compile the verifier using

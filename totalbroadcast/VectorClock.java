@@ -1,10 +1,11 @@
-package causalbroadcast;
+package totalbroadcast;
 
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
+import javax.xml.soap.Node;
+
 public class VectorClock {
     private AtomicIntegerArray vectorClock;
-
     /**
      * Constructor to create a new vector clock.
      * 
@@ -23,10 +24,10 @@ public class VectorClock {
      */
     public VectorClock(String clockRepresentation) throws NumberFormatException {
         // Attempt to convert the representative clock string to an integer array
-        int[] clockArray = new int[4];
-        String[] messageParts = clockRepresentation.split(",", 4);
+        int[] clockArray = new int[5];
+        String[] messageParts = clockRepresentation.split(",", 5);
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             clockArray[i] = Integer.parseInt(messageParts[i]);
         }
         this.vectorClock = new AtomicIntegerArray(clockArray);
@@ -114,9 +115,11 @@ public class VectorClock {
      * @param NodeId
      * @return
      */
-    public synchronized boolean canDeliver(VectorClock receivedClock, int NodeId) {
+    public synchronized boolean canDeliver(VectorClock receivedClock, int NodeId, int currentNodeId) {
         // Condition 1: C[b] = M[b] - 1 (b is receiver's process ID)
-        if (this.getComponent(NodeId - 1) != receivedClock.getComponent(NodeId - 1) - 1) {
+        if ((currentNodeId == NodeId) && (this.getComponent(NodeId - 1) != receivedClock.getComponent(NodeId - 1))) {
+            return false;    
+        } else if ((currentNodeId != NodeId) && this.getComponent(NodeId - 1) != receivedClock.getComponent(NodeId - 1) - 1) {
             return false;
         }
         // Condition 2: C[k] >= M[k] for all other components

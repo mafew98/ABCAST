@@ -1,4 +1,4 @@
-package causalbroadcast;
+package totalbroadcast;
 
 public class Message {
     private String messageContent;
@@ -17,6 +17,23 @@ public class Message {
         this.messageClock = new VectorClock(messageParts[0]);
         this.messageContent = messageParts[1];
         this.NodeId = NodeId;
+    }
+
+    /**
+     * Message Constructor to handle raw messages and guess the node ID
+     * A Raw message will be of the form "X,X,X,X: Message no. Y from Node Z"
+     * 
+     * @param rawMessage
+     * @param NodeId
+     */
+    public Message(String rawMessage) throws NumberFormatException {
+        String[] messageParts = rawMessage.split(":", 2);
+        this.messageClock = new VectorClock(messageParts[0]);
+        this.messageContent = messageParts[1];
+        int index = messageContent.indexOf("from Node ");
+        if (index != -1) {
+            this.NodeId = Integer.parseInt(messageContent.substring(index + 10).trim());  // Extract Z
+        }
     }
 
     /**

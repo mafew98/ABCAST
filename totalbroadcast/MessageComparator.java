@@ -1,4 +1,4 @@
-package causalbroadcast;
+package totalbroadcast;
 
 import java.util.Comparator;
 
