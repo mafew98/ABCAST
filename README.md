@@ -80,7 +80,7 @@ The current implementation statically assigns the first node as the sequencer no
 
 Dependencies:
 ------------
-This project requires Java SE Development Kit (JDK) installed on your system.
+This project requires Java SE Development Kit (JDK) installed on your system. This code is written for Java 7.
 
 Contributing:
 ------------
