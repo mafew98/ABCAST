@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class VectorClock {
     private AtomicIntegerArray vectorClock;
+    private int NumOfProcesses;
 
     /**
      * Constructor to create a new vector clock.
@@ -12,6 +13,7 @@ public class VectorClock {
      */
     public VectorClock(int NumOfProcesses) {
         // Creates the vector clock and initializes the components to 0.
+        this.NumOfProcesses = NumOfProcesses;
         this.vectorClock = new AtomicIntegerArray(NumOfProcesses);
     }
 
@@ -23,10 +25,10 @@ public class VectorClock {
      */
     public VectorClock(String clockRepresentation) throws NumberFormatException {
         // Attempt to convert the representative clock string to an integer array
-        int[] clockArray = new int[5];
-        String[] messageParts = clockRepresentation.split(",", 5);
+        int[] clockArray = new int[this.NumOfProcesses];
+        String[] messageParts = clockRepresentation.split(",", this.NumOfProcesses);
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < this.NumOfProcesses; i++) {
             clockArray[i] = Integer.parseInt(messageParts[i]);
         }
         this.vectorClock = new AtomicIntegerArray(clockArray);
